@@ -1,10 +1,11 @@
 set -x
 
 maprcli table replica autosetup -path /apps/values -replica /apps/valuesreplica
+/tmp/waitForReplicaAutoSetup
 
 maprcli table replica list  -path /apps/values -json
 
 /tmp/waitForReplicationToComplete
 maprcli table replica remove -path /apps/values -replica /apps/valuesreplica
 maprcli table delete -path /apps/valuesreplica
-sleep 10
+/tmp/waitForReplicaDelete

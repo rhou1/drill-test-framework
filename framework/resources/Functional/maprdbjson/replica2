@@ -1,12 +1,13 @@
 set -x
 
 maprcli table replica autosetup -path /apps/values -replica /apps/valuesreplica
+/tmp/waitForReplicaAutoSetup
 
 echo 'insert /apps/values --value '\''{"_id":"abc","class_id":5}'\' | mapr dbshell
+/tmp/waitForReplicationToComplete
 echo 'find /apps/values --query {"$select":["_id","class_id","scores"],"$where":{"$eq":{"class_id":5}}}' | mapr dbshell
 
 echo 'delete /apps/values --id "abc"' | mapr dbshell
-/tmp/waitForReplicationToComplete
 maprcli table replica remove -path /apps/values -replica /apps/valuesreplica
 maprcli table delete -path /apps/valuesreplica
-sleep 10
+/tmp/waitForReplicaDelete

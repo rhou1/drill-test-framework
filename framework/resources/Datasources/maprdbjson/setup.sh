@@ -11,7 +11,9 @@ kubectl cp valuesm1.json dataplatform/admincli-0:/tmp
 # kubectl cp valuesm1e.json dataplatform/admincli-0:/tmp
 kubectl cp load_data dataplatform/admincli-0:/tmp
 kubectl exec -i admincli-0 -n dataplatform -- /bin/bash -c "/tmp/load_data"
+kubectl cp waitForReplicaAutoSetup dataplatform/admincli-0:/tmp
 kubectl cp waitForReplicationToComplete dataplatform/admincli-0:/tmp
+kubectl cp waitForReplicaDelete dataplatform/admincli-0:/tmp
 # kubectl cp load_data_jsonapps dataplatform/admincli-0:/tmp
 # kubectl cp hbase.replicate1 dataplatform/admincli-0:/tmp
 # kubectl cp hbase.replicate2 dataplatform/admincli-0:/tmp
