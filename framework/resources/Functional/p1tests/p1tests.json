@@ -26,6 +26,11 @@
          "mode": "cp",
          "src": "Datasources/p1tests/voter",
          "dest": "p1tests/voter"
+      },
+      {
+         "mode": "gen",
+         "src": "Datasources/p1tests/gen.sh",
+         "dest": ""
       }
     ]
 }
