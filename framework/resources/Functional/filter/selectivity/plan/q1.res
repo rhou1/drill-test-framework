@@ -1,0 +1,3 @@
+.*Screen.*
+  .*Project.*
+    .*Scan.*
