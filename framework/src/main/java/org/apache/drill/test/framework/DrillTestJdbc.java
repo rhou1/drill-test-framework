@@ -19,6 +19,7 @@ package org.apache.drill.test.framework;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
+import org.apache.drill.jdbc.DrillResultSet;
 import org.apache.drill.test.framework.TestCaseModeler.TestMatrix;
 import org.apache.drill.test.framework.TestVerifier.TestStatus;
 import org.apache.drill.test.framework.TestVerifier.VerificationException;
@@ -61,6 +62,7 @@ public class DrillTestJdbc implements DrillTest {
   private Statement statement = null;
   private AtomicBoolean doneProcessingResultSet = new AtomicBoolean(false);
   private int id;
+  private String queryID;
 
   public DrillTestJdbc(DrillTestCase modeler, ConnectionPool connectionPool, int id) {
 	this.id = id;
@@ -102,8 +104,12 @@ public class DrillTestJdbc implements DrillTest {
       
       testVerifier = new TestVerifier(columnTypes, query, columnLabels, matrix.verificationTypes);
       if (query.startsWith("explain") || matrix.verificationTypes.get(0).equalsIgnoreCase("regex") ||
+          matrix.verificationTypes.get(0).equalsIgnoreCase("regex-no-order") ||
           matrix.verificationTypes.get(0).equalsIgnoreCase("filter-ratio")) {
         setTestStatus(testVerifier.verifyTextPlan(modeler.expectedFilename, outputFilename));
+      } else if (matrix.verificationTypes.get(0).equalsIgnoreCase("parquet-filter-pushdown")) {
+        String queryID2 = Utils.getQueryIDFromLogs(query);
+        setTestStatus(testVerifier.verifyLog(query, modeler.expectedFilename, outputFilename, queryID));
       } else {
         setTestStatus(testVerifier.verifyResultSet(modeler.expectedFilename, outputFilename));
       }
@@ -246,6 +252,8 @@ public class DrillTestJdbc implements DrillTest {
 	} finally {
 	  doneProcessingResultSet.set(true);
       if (resultSet != null) {
+        // get queryID before resultSet is closed
+        queryID = Utils.getQueryID(resultSet);
         resultSet.close();
       }
       if (writer != null) {

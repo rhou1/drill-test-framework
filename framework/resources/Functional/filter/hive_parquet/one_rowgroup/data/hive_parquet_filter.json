@@ -1,0 +1,25 @@
+{
+    "testId": "hive_parquet_filter_pushdown_data",
+    "type": "group",
+    "description": "Filter pushdown tests for hive-generated files: these tests verify query correctness",
+    "categories": [ "smoke" ],
+    "matrices": [
+        {
+            "query-file": ".*.q",
+            "schema": "dfs.parquet_filter_pushdown",
+            "output-format": "tsv",
+            "expected-file": ".*.e",
+            "verification-type": [
+                "in-memory"
+            ]
+        }
+    ],
+    "datasources": [
+        {
+            "mode": "cp",
+            "src": "Datasources/filter/hive_parquet",
+            "dest": "filter"
+        }
+    ]
+}
+

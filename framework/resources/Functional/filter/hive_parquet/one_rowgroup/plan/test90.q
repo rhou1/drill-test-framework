@@ -1,0 +1,2 @@
+-- keep partition 1.  count is 1000.
+explain plan for select count(*) from orders_parts_hive where (int_id > -3000 and int_id < -1999) and (bigint_id > -3000 and bigint_id < -1999) and (float_id > -3000.9 and float_id < -1998.1) and (double_id > -3000.1 and double_id < 1998.9) and (date_id > '2008-07-17' and date_id < '2011-04-14') and (timestamp_id > '2016-09-30 21:16:12.873' and timestamp_id < '2016-10-01 13:57:12.873');

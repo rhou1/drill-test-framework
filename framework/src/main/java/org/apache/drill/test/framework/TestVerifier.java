@@ -28,8 +28,11 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -40,6 +43,7 @@ import java.util.regex.Pattern;
 
 import com.google.common.collect.Lists;
 import org.apache.log4j.Logger;
+import org.apache.drill.jdbc.DrillResultSet;
 
 /**
  * Verification of drill tests by comparing actual query output with expected
@@ -486,6 +490,8 @@ public class TestVerifier {
     boolean verified = false;
     if (verificationTypes.get(0).equalsIgnoreCase("regex")) {
       verified = matchesAll(actual, expected);
+    } else if (verificationTypes.get(0).equalsIgnoreCase("regex-no-order")) {
+      verified = matchesAllNoOrder(actual, expected);
     } else if (verificationTypes.get(0).equalsIgnoreCase("filter-ratio")) {
       verified = matchAndCompareAll(actual, expected);
     } else {
@@ -512,6 +518,30 @@ public class TestVerifier {
         i = actual.indexOf(matched);
         actual = actual.substring(i + matched.length()).trim();
       } else {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Check for regex matches.  The patterns can appear in any order in the
+   *  expected results file.
+   * 
+   * @param actual
+   *          string containing the actual results
+   * @param expected
+   *          string containing the expected results
+   * @return true or false to indicate if there is a match
+   */
+  private static boolean matchesAllNoOrder(String actual, String expected) {
+    String[] expectedLines = expected.split("\n");
+    actual = actual.trim();
+    int i = 0;
+    for (String string : expectedLines) {
+      string = string.trim();
+      Matcher matcher = Pattern.compile(string).matcher(actual);
+      if (!matcher.find()) {
         return false;
       }
     }
@@ -614,6 +644,74 @@ public class TestVerifier {
       }
     }
     return true;
+  }
+
+  /**
+   * Data structure that is returned by parquetFilterPushdown
+   */
+  final static class LogResult {
+    public boolean verified;
+    public String actual;
+
+    public LogResult (boolean verified, String actual) {
+      this.verified = verified;
+      this.actual = actual;
+    }
+  }
+
+  /**
+   * Verify data in log file.  Developed for parquet filter pushdown
+   * project.  Not currently used.  Preserved in case we need to
+   * verify data in the log file some day.
+   */
+  public TestStatus verifyLog(String query, String expectedOutput,
+                              String actualOutput, String queryID)
+    throws IOException, VerificationException {
+    if (testStatus == TestStatus.EXECUTION_FAILURE
+    	|| testStatus == TestStatus.CANCELED) {
+      return testStatus;
+    }
+    StringBuilder sb = new StringBuilder();
+    String expected = new String(Files.readAllBytes(Paths.get(expectedOutput)));
+    String actual = new String(Files.readAllBytes(Paths.get(actualOutput)));
+    LogResult logResult = parquetFilterPushdown(query, actual, expected, expectedOutput, queryID);
+    if (logResult.verified) {
+      return TestStatus.PASS;
+    }
+    sb.append("\nExpected and actual log results are different."); sb.append("\nExpected:\n" + expected);
+    sb.append("\nActual:\n" + logResult.actual);
+    throw new VerificationException(sb.toString());
+  }
+
+  /**
+   * Verify data in log file.  Developed for parquet filter pushdown
+   * project.  Not currently used.  Preserved in case we need to
+   * verify data in the log file some day.
+   */
+  private static LogResult parquetFilterPushdown (String full_query,
+                                                  String actual,
+                                                  String expected,
+                                                  String expectedFilename,
+                                                  String queryID) {
+    LogResult logResult = new LogResult(true, "");
+    String cmd = "clush -g all grep \"" + queryID + "\" /opt/mapr/drill/drill-1.9.0.filterpushdown2/log/drillbit.log /var/log/drill/drillbit.log";
+    CmdConsOut cmdConsOut = Utils.execCmd(cmd);
+    boolean result = false;
+    Matcher matcher = Pattern.compile(expected).matcher(cmdConsOut.consoleOut);
+    result = (matcher.find());
+    String[] fullOutput = cmdConsOut.consoleOut.split("\n");
+    if (!result) {
+      // get the actual number of rowgroups filtered
+      for (int index = 0; index < fullOutput.length; index++) {
+        Matcher rowgroupMatch = Pattern.compile("ParquetScanBatchCreator - (Filter out.*$)").matcher(fullOutput[index]);
+        if (rowgroupMatch.find()) {
+          logResult.actual = rowgroupMatch.group(1);
+          break;
+        }
+      }
+    }
+    logResult.verified = result;
+    return logResult;
   }
 
   public static Map<String, String> getOrderByColumns(String statement,
