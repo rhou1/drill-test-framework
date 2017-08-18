@@ -12,8 +12,8 @@ select count(*) from (
   ) s2
   order by s2.rms.mapid, s2.rptds.a, s2.rptds.do_not_exist
 );
-ALTER SESSION SET `exec.sort.disable_managed` = true;
-alter session set `planner.width.max_per_node` = 17;
-alter session set `planner.disable_exchanges` = false;
-alter session set `planner.width.max_per_query` = 1000;
-alter session set `planner.memory.max_query_memory_per_node` = 2147483648;
+ALTER SESSION RESET `exec.sort.disable_managed`;
+alter session reset `planner.width.max_per_node`;
+alter session reset `planner.disable_exchanges`;
+alter session reset `planner.width.max_per_query`;
+alter session reset `planner.memory.max_query_memory_per_node`;

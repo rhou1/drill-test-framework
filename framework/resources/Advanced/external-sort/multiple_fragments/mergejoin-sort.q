@@ -82,8 +82,8 @@ ORDER  BY t_s_secyear.customer_id,
           t_s_secyear.customer_birth_country
 ) data 
 where data.fn='Merle'  and data.id like 'AAAAAAAAF%' ;
-ALTER SESSION SET `exec.sort.disable_managed` = true;
-alter session set `planner.width.max_per_query` = 1000;
-alter session set `planner.enable_decimal_data_type` = true;
-alter session set `planner.memory.max_query_memory_per_node` = 2147483648 ;
-alter session set `planner.enable_hashjoin` = true;
+ALTER SESSION RESET `exec.sort.disable_managed`;
+alter session reset `planner.width.max_per_query`;
+alter session reset `planner.enable_decimal_data_type`;
+alter session reset `planner.memory.max_query_memory_per_node`;
+alter session reset `planner.enable_hashjoin`;

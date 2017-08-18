@@ -1,6 +1,7 @@
 ALTER SESSION SET `exec.sort.disable_managed` = false;
 alter session set `planner.enable_decimal_data_type` = true;
 alter session set `planner.memory.max_query_memory_per_node` = 304857600;
+alter session set `planner.width.max_per_query` = 1000;
 select * from (select *, ss_sold_date_sk + ss_sold_time_sk as sumcol1, ss_item_sk + ss_customer_sk as sumcol2 from (select
 cast( ss_sold_date_sk as integer)  as ss_sold_date_sk,
 cast( ss_sold_time_sk as integer)  as ss_sold_time_sk,
@@ -53,7 +54,7 @@ cast( ss_net_paid_inc_tax as double)  as ss_net_paid_inc_tax,
 cast( ss_net_profit as double)  as ss_net_profit
 from `../store_sales/1_1_0.parquet`
 ) d order by d.ss_sold_date_sk, ss_net_profit) d1 where sumcol1 is null and sumcol2 > 100000;
-ALTER SESSION SET `exec.sort.disable_managed` = false;
-alter session set `planner.enable_decimal_data_type` = true;
-alter session set `planner.memory.max_query_memory_per_node` = 2147483648;
-alter session set `planner.width.max_per_query` = 1000;
+ALTER SESSION RESET `exec.sort.disable_managed`;
+alter session reset `planner.enable_decimal_data_type`;
+alter session reset `planner.memory.max_query_memory_per_node`;
+alter session reset `planner.width.max_per_query`;

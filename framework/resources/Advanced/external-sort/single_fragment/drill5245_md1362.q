@@ -18,9 +18,9 @@ select * from (
   where d1.name is not null
 ) d2
 OFFSET 1400000;
-alter session set `planner.width.max_per_node` = 17;
-alter session set `planner.enable_decimal_data_type` = true;
-alter session set `planner.memory.max_query_memory_per_node` = 2147483648;
-ALTER SESSION SET `exec.sort.disable_managed` = true;
-alter session set `planner.width.max_per_query` = 1000;
-alter session set `planner.filter.min_selectivity_estimate_factor` = 0.0;
+alter session reset `planner.width.max_per_node`;
+alter session reset `planner.enable_decimal_data_type`;
+alter session reset `planner.memory.max_query_memory_per_node`;
+ALTER SESSION RESET `exec.sort.disable_managed`;
+alter session reset `planner.width.max_per_query`;
+alter session reset `planner.filter.min_selectivity_estimate_factor`;

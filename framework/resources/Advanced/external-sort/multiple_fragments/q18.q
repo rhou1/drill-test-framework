@@ -10,8 +10,8 @@ select count(*) from
     where
         c.c_custkey = o.o_custkey
         and l.l_orderkey = o.o_orderkey;
-ALTER SESSION SET `exec.sort.disable_managed` = true;
-alter session set `planner.memory.max_query_memory_per_node` = 2147483648;
-alter session set `planner.width.max_per_query` = 1000;
-alter session set `planner.enable_hashjoin` = true;
+ALTER SESSION RESET `exec.sort.disable_managed`;
+alter session reset `planner.memory.max_query_memory_per_node`;
+alter session reset `planner.width.max_per_query`;
+alter session reset `planner.enable_hashjoin`;
 use dfs.tpcds_sf1_parquet_views;

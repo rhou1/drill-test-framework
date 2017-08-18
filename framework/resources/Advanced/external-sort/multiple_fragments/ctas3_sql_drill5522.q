@@ -1,0 +1,19 @@
+ALTER SESSION SET `exec.sort.disable_managed` = false;
+alter session set `planner.memory.max_query_memory_per_node` = 1552428800;
+alter session set `planner.width.max_per_query` = 1000;
+alter session set `planner.width.max_per_node` = 17;
+create table dfs.drillTestDir.xsort_ctas3_multiple partition by (type, aCol) as select type, rptds, rms, s3.rms.a aCol, uid from (
+  select * from (
+    select s1.type type, flatten(s1.rms.rptd) rptds, s1.rms, s1.uid
+    from (
+      select d.type type, d.uid uid, flatten(d.map.rm) rms from dfs.`/drill/testdata/resource-manager/nested-large.json` d order by d.uid
+    ) s1
+  ) s2
+  order by s2.rms.mapid, s2.rptds.a
+) s3;
+select count(*) from dfs.drillTestDir.xsort_ctas3_multiple;
+drop table dfs.drillTestDir.xsort_ctas3_multiple;
+ALTER SESSION RESET `exec.sort.disable_managed`;
+alter session reset `planner.memory.max_query_memory_per_node`;
+alter session reset `planner.width.max_per_query`;
+alter session reset `planner.width.max_per_node`;

@@ -17,5 +17,5 @@ inner join
  from dfs.`/drill/testdata/resource-manager/nested-large.json`
 ) event_info
 on transaction_info.max_event_time = event_info.event.event_time) d order by d.event.evnt_id, d.evnt_id) d1 where d1.uid < -1;
-ALTER SESSION SET `exec.sort.disable_managed` = true;
-alter session set `planner.memory.max_query_memory_per_node` = 2147483648;
+ALTER SESSION RESET `exec.sort.disable_managed`;
+alter session reset `planner.memory.max_query_memory_per_node`;

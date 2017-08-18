@@ -20,9 +20,9 @@ select count(*) from
 where 
   d1.cd_demo_sk = d3.c_current_cdemo_sk
   and d2.ss_customer_sk = d3.c_customer_sk;
-ALTER SESSION SET `exec.sort.disable_managed` = true;
-alter session set `planner.width.max_per_node` = 17;
-alter session set `planner.width.max_per_query` = 1000;
-alter session set `planner.enable_decimal_data_type` = true;
-alter session set `planner.memory.max_query_memory_per_node` = 2147483648;
-alter session set `planner.disable_exchanges` = false;
+ALTER SESSION RESET `exec.sort.disable_managed`;
+alter session reset `planner.width.max_per_node`;
+alter session reset `planner.width.max_per_query`;
+alter session reset `planner.enable_decimal_data_type`;
+alter session reset `planner.memory.max_query_memory_per_node`;
+alter session reset `planner.disable_exchanges`;

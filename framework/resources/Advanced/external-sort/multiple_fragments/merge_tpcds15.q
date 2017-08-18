@@ -20,6 +20,6 @@ WHERE  cs_bill_customer_sk = c_customer_sk
        AND d_year = 1998 
 GROUP  BY ca_zip 
 ORDER  BY ca_zip;
-alter session set `planner.enable_hashjoin` = true;
-ALTER SESSION SET `exec.sort.disable_managed` = true;
-alter session set `planner.memory.max_query_memory_per_node` = 2147483648;
+alter session reset `planner.enable_hashjoin`;
+ALTER SESSION RESET `exec.sort.disable_managed`;
+alter session reset `planner.memory.max_query_memory_per_node`;

@@ -80,6 +80,6 @@ FROM   (SELECT wswscs.d_week_seq d_week_seq1,
                AND d_year = 1998 + 1) z 
 WHERE  d_week_seq1 = d_week_seq2 - 53 
 ORDER  BY d_week_seq1;
-alter session set `planner.enable_hashjoin` = true;
-ALTER SESSION SET `exec.sort.disable_managed` = true;
-alter session set `planner.memory.max_query_memory_per_node` = 2147483648;
+alter session reset `planner.enable_hashjoin`;
+ALTER SESSION RESET `exec.sort.disable_managed`;
+alter session reset `planner.memory.max_query_memory_per_node`;

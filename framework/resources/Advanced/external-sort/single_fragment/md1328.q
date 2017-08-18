@@ -45,7 +45,7 @@ GROUP  BY Substr(w_warehouse_name, 1, 20),
 ORDER  BY Substr(w_warehouse_name, 1, 20), 
           sm_type, 
           cc_name;
-ALTER SESSION SET `exec.sort.disable_managed` = true;
-alter session set `planner.width.max_per_query` = 1000;
-alter session set `planner.enable_decimal_data_type` = true;
+ALTER SESSION RESET `exec.sort.disable_managed`;
+alter session reset `planner.width.max_per_query`;
+alter session reset `planner.enable_decimal_data_type`;
 use dfs.tpcds_sf1_parquet_views;

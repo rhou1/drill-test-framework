@@ -48,9 +48,9 @@ select count(*) from (
   order by d1.map.missing, d1.missing12.x
 ) d2 
 where d2.missing1 < -1;
-alter session set `planner.enable_decimal_data_type` = false;
-ALTER SESSION SET `exec.sort.disable_managed` = true;
-alter session set `planner.width.max_per_node` = 17;
-alter session set `planner.disable_exchanges` = false;
-alter session set `planner.width.max_per_query` = 1000;
-alter session set `planner.memory.max_query_memory_per_node` = 2147483648;
+alter session reset `planner.enable_decimal_data_type`;
+ALTER SESSION RESET `exec.sort.disable_managed`;
+alter session reset `planner.width.max_per_node`;
+alter session reset `planner.disable_exchanges`;
+alter session reset `planner.width.max_per_query`;
+alter session reset `planner.memory.max_query_memory_per_node`;

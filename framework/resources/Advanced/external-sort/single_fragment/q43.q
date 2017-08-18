@@ -10,8 +10,8 @@ select count(*) from (select * from (select v1_ext.uid, MAX(v2_ext.transaction.a
 ) d1 where d1.uid = -101;
 drop view dfs.drillTestDir.`resource-manager/v1_ext`;
 drop view dfs.drillTestDir.`resource-manager/v2_ext`;
-ALTER SESSION SET `exec.sort.disable_managed` = true;
-alter session set `planner.width.max_per_node` = 17;
-alter session set `planner.disable_exchanges` = false;
-alter session set `planner.width.max_per_query` = 1000;
-alter session set `planner.memory.max_query_memory_per_node` = 2147483648;
+ALTER SESSION RESET `exec.sort.disable_managed`;
+alter session reset `planner.width.max_per_node`;
+alter session reset `planner.disable_exchanges`;
+alter session reset `planner.width.max_per_query`;
+alter session reset `planner.memory.max_query_memory_per_node`;

@@ -9,5 +9,5 @@ select count(*) from (
     d1.missing26, d1.missing27, d1.missing28, d1.`missing 29`, d1.missing30, d1.missing31, d1.missing32, 
     d1.missing33, d1.missing34, d1.m1 
 ) d where d.missing3 is false;
-alter session set `planner.enable_decimal_data_type` = false;
-ALTER SESSION SET `exec.sort.disable_managed` = true;
+alter session reset `planner.enable_decimal_data_type`;
+ALTER SESSION RESET `exec.sort.disable_managed`;

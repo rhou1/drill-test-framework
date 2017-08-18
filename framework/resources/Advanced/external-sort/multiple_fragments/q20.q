@@ -43,5 +43,5 @@ GROUP  BY Substr(w_warehouse_name, 1, 20),
 ORDER  BY Substr(w_warehouse_name, 1, 20), 
           sm_type, 
           cc_name;
-alter session set `planner.width.max_per_query` = 1000;
-ALTER SESSION SET `exec.sort.disable_managed` = true;
+alter session reset `planner.width.max_per_query`;
+ALTER SESSION RESET `exec.sort.disable_managed`;
