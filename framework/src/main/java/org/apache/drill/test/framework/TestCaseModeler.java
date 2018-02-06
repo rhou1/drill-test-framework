@@ -40,6 +40,7 @@ public class TestCaseModeler {
   public List<TestMatrix> matrices;
   public List<DataSource> datasources;
   public List<String> dependencies;
+  public String connectionString;
 
   public TestCaseModeler(TestCaseModeler moduler) {
 	testId = moduler.testId;
@@ -54,6 +55,7 @@ public class TestCaseModeler {
 	dependencies = moduler.dependencies;
 	matrices = moduler.matrices;
 	datasources = moduler.datasources;
+	connectionString = moduler.connectionString;
   }
   
   private TestCaseModeler() {}
@@ -61,7 +63,8 @@ public class TestCaseModeler {
   public static TestCaseModeler createTestCase(String testId, String type,
       boolean negative, String description, String submitType, String script,
       String queryType, String timeout, List<String> categories, List<String> dependencies,
-      List<TestMatrix> matrices, List<DataSource> datasources) {
+      List<TestMatrix> matrices, List<DataSource> datasources,
+      String connectionString) {
     TestCaseModeler testCase = new TestCaseModeler();
     testCase.testId = testId;
     testCase.type = type;
@@ -75,6 +78,7 @@ public class TestCaseModeler {
     testCase.dependencies = dependencies;
     testCase.matrices = matrices;
     testCase.datasources = datasources;
+    testCase.connectionString = connectionString;
     return testCase;
   }
 
@@ -201,6 +205,9 @@ public class TestCaseModeler {
       for (DataSource datasource : datasources) {
         result += "\n" + datasource.toString();
       }
+    }
+    if (connectionString != null) {
+      result += "\nConnection String" + connectionString.toString();
     }
     return result;
   }

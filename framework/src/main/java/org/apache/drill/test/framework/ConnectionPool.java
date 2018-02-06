@@ -57,7 +57,7 @@ public class ConnectionPool implements DrillDefaults, AutoCloseable {
   public Connection getOrCreateConnection(TestCaseModeler test) throws SQLException {
     final String username = test.matrices.get(0).username;
     final String password = test.matrices.get(0).password;
-    return getOrCreateConnection(username, password);
+    return getOrCreateConnection(username, password, test.connectionString);
   }
 
   public void releaseConnection(TestCaseModeler test, Connection connection) {
@@ -77,6 +77,29 @@ public class ConnectionPool implements DrillDefaults, AutoCloseable {
       final Queue<Connection> connectionQueue = Queues.newLinkedBlockingQueue();
       connections.put(key, connectionQueue);
       return DriverManager.getConnection(TestDriver.connectionString, username, password);
+    }
+  }
+
+  public synchronized Connection getOrCreateConnection(String username, String password,
+                                                       String modelerConnectionString) throws SQLException {
+    final String key = username + password;
+    final String connectionString;
+    if (modelerConnectionString != null) {
+      connectionString = modelerConnectionString;
+    } else {
+      connectionString = TestDriver.connectionString;
+    }
+    if (connections.containsKey(key)) {
+      final Connection connection = connections.get(key).poll();
+      if (connection == null) {
+        return DriverManager.getConnection(connectionString, username, password);
+      } else {
+        return connection;
+      }
+    } else {
+      final Queue<Connection> connectionQueue = Queues.newLinkedBlockingQueue();
+      connections.put(key, connectionQueue);
+      return DriverManager.getConnection(connectionString, username, password);
     }
   }
 
