@@ -35,6 +35,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -90,6 +91,7 @@ public class DrillTestJdbc implements DrillTest {
     }
     try {
       LOG.debug("Running test " + modeler.queryFilename + " (Connection HashCode: " + connection.hashCode() + ")");
+      LOG.info("Running test " + modeler.queryFilename + " (Connection HashCode: " + connection.hashCode() + " Date: " + new Date().toString() + ")");
 
       if (!modeler.type.equalsIgnoreCase("impersonation")) {
         executeSetupQuery(String.format("use `%s`", matrix.schema));
@@ -157,9 +159,10 @@ public class DrillTestJdbc implements DrillTest {
       duration = stopwatch;
 
       if (DrillTestDefaults.JDBC_DRIVER.equals(DrillTestDefaults.Driver.APACHE)) {
-        LOG.info("[" + testStatus + "] (" + stopwatch + ") " + modeler.queryFilename + " (ConnectionID: " + connection.hashCode()+ " | QueryID: " + queryID + ")");
+        LOG.info("[" + testStatus + "] (" + stopwatch + ") " + modeler.queryFilename + " (ConnectionID: " + connection.hashCode()+ " | QueryID: " + queryID + " Date: " + new Date().toString() + ")");
+        Utils.queryIDFileMap.put(queryID, modeler.queryFilename);
       } else {
-        LOG.info("[" + testStatus + "] (" + stopwatch + ") " + modeler.queryFilename + " (ConnectionID: " + connection.hashCode() + ")");
+        LOG.info("[" + testStatus + "] (" + stopwatch + ") " + modeler.queryFilename + " (ConnectionID: " + connection.hashCode() + " Date: " + new Date().toString() + ")");
       }
 
       if((++countTestsCompleted %100==0 && countTestsCompleted <= totalCases) || (countTestsCompleted == totalCases)){

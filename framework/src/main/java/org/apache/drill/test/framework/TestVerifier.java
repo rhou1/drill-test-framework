@@ -20,6 +20,7 @@ package org.apache.drill.test.framework;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -907,6 +908,77 @@ public class TestVerifier {
 
   public static boolean isOrderByQuery(String statement) {
     return !getOrderByBlock(statement).isEmpty();
+  }
+
+  public static int verifyBatchSizes(String logDirectory) {
+    int totalLogFailures = 0;
+    LOG.info("Verify batch sizes");
+    LOG.info("");
+    // LOG.info("get list of files");
+    // get new File for log directory, in case it is newly created
+    File logDir = new File(logDirectory);
+    File[] files = logDir.listFiles(new FilenameFilter() {
+      public boolean accept(File dir, String name) {
+        return true;
+      }
+    });
+    HashMap<String, Long> batchSizes = new HashMap<String,Long>();
+    // first pass: get requested batch size for each query
+    for (File file : files) {
+      // LOG.info("open file: " + file.getName());
+      if (file.isFile()) {
+        try {
+          BufferedReader reader = new BufferedReader (new FileReader(file));
+          String line;
+          while ((line = reader.readLine()) != null) {
+            if (line.startsWith("BATCHSIZE:")) {
+              Matcher matcher = Pattern.compile("BATCHSIZE:([a-f0-9-]+) ([0-9]+)$").matcher(line);
+              if (matcher.find()) {
+                // LOG.info("QueryID: " + matcher.group(1) + " batch size: " + matcher.group(2));
+                batchSizes.put(matcher.group(1), Long.parseLong(matcher.group(2)));
+              }
+            }
+          }
+        } catch (Exception e) {
+          LOG.info ("Error: Reading log file: " + file.getName());
+        }
+      }
+    }
+    // second pass: check batch sizes for each query
+    for (File file : files) {
+      // LOG.info("open file: " + file.getName());
+      if (file.isFile()) {
+        try {
+          BufferedReader reader = new BufferedReader (new FileReader(file));
+          String line;
+          while ((line = reader.readLine()) != null) {
+            if (line.startsWith("ALLOCATED:")) {
+              Matcher matcher = Pattern.compile("ALLOCATED:([a-f0-9-]+) ([0-9]+) ([0-9]+)$").matcher(line);
+              if (matcher.find()) {
+                // LOG.info("QueryID: " + matcher.group(1) + " allocated size: " + matcher.group(2) + " buffer size: " + matcher.group(3));
+                Long batchSize = batchSizes.get(matcher.group(1));
+                if (batchSize != null) {
+                  if (Long.parseLong(matcher.group(2)) > batchSize) {
+                    LOG.info ("QueryID: " + matcher.group(1) + " Allocated buffer: " + matcher.group(2) + " is larger than requested batch size: " + batchSize);
+                    LOG.info ("Test file is: " + Utils.queryIDFileMap.get(matcher.group(1)));
+                    totalLogFailures++;
+                  }
+                  if (Long.parseLong(matcher.group(3)) > batchSize) {
+                    LOG.info ("QueryID: " + matcher.group(1) + " Buffer size : " + matcher.group(3) + " is larger than requested batch size: " + batchSize);
+                    LOG.info ("Test file is: " + Utils.queryIDFileMap.get(matcher.group(1)));
+                    totalLogFailures++;
+                  }
+                }
+              }
+            }
+          }
+        } catch (Exception e) {
+          LOG.info ("Error: Reading log file: " + file.getName());
+        }
+      }
+    }
+    LOG.info ("Total Log Failures " + totalLogFailures);
+    return totalLogFailures;
   }
 
   public static class VerificationException extends Exception {

@@ -529,6 +529,11 @@
       "location": "/drill",
       "writable": true,
       "defaultInputFormat": "json"
+    },
+    "batch_memory": {
+      "location": "/drill/testdata/batch_memory",
+      "writable": true,
+      "defaultInputFormat": "parquet"
     }
     },
     "formats" : {

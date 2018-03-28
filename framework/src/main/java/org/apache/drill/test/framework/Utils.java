@@ -39,6 +39,7 @@ import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -78,6 +79,7 @@ public class Utils {
   private static final Map<Integer, String> sqlNullabilities;
   private static HttpClient client;
   private static String protocol = "http://";
+  public static HashMap<String, String> queryIDFileMap = new HashMap<String,String>();
 
   // Accept self-signed certificate
   public static class MyHostNameVerifier implements HostnameVerifier {
@@ -812,6 +814,70 @@ public class Utils {
       builder.append(s);
     }
     return builder.toString();
+  }
+
+  /* Start new process to tail log files.
+     For verifying batch memory log entries */
+  public static void StartLogTailer() {
+
+    String cmd = "clush -g all java -cp \".:/opt/logparser:/opt/logparser/lib/*\" -Djava.library.path=\"/opt/logparser/lib\" LogParser " + DrillTestDefaults.DRILL_LOG_DIR;
+    LOG.info("StartLogTailer");
+    LOG.info("cmd: " + cmd);
+    ShellRunner.INSTANCE.execCmdNohup(cmd);
+  }
+
+  /* Stop process to tail log files. */
+  public static int StopLogTailer() {
+
+    int totalLogFailures = 0;
+    CmdConsOut cmdConsOut;
+    String cmd = "clush -g all /root/cleanup.sh";
+    LOG.info("");
+    LOG.info("StopLogTailer");
+    // LOG.info("cmd: " + cmd);
+    cmdConsOut = ShellRunner.INSTANCE.execCmd(cmd);
+    // LOG.info(cmdConsOut.consoleOut);
+    // LOG.info(cmdConsOut.exitCode);
+
+    File logDir = new File("/opt/logparser/log");
+    // LOG.info("RemoveOldLogs");
+    cmd = "/bin/rm -r /opt/logparser/log";
+    // LOG.info("cmd: " + cmd);
+    cmdConsOut = ShellRunner.INSTANCE.execCmd(cmd);
+    // LOG.info(cmdConsOut.consoleOut);
+    // LOG.info(cmdConsOut.exitCode);
+
+    // LOG.info("CreateLogdir");
+    cmd = "mkdir /opt/logparser/log";
+    // LOG.info("cmd: " + cmd);
+    cmdConsOut = ShellRunner.INSTANCE.execCmd(cmd);
+    // LOG.info(cmdConsOut.consoleOut);
+    // LOG.info(cmdConsOut.exitCode);
+
+    cmd = "clush -a --rcopy /opt/logparser/out.json --dest /opt/logparser/log";
+    // LOG.info("GetLogs");
+    // LOG.info("cmd: " + cmd);
+    cmdConsOut = ShellRunner.INSTANCE.execCmd(cmd);
+    // LOG.info(cmdConsOut.consoleOut);
+    // LOG.info(cmdConsOut.exitCode);
+
+    totalLogFailures = TestVerifier.verifyBatchSizes("/opt/logparser/log");
+    return totalLogFailures;
+  }
+
+  /* Catch Ctrl^C that kills Drill Test Framework.
+     Need to clean up LogParser */
+  public static class ProcessorHook extends Thread {
+    @Override
+    public void run() {
+      CmdConsOut cmdConsOut;
+      String cmd = "clush -g all /root/cleanup.sh";
+      // LOG.info("Catch Ctrl^C and StopLogTailer");
+      // LOG.info("cmd: " + cmd);
+      cmdConsOut = ShellRunner.INSTANCE.execCmd(cmd);
+      // LOG.info(cmdConsOut.consoleOut);
+      // LOG.info(cmdConsOut.exitCode);
+    }
   }
 
 }

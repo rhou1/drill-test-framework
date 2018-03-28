@@ -62,6 +62,22 @@ public enum ShellRunner implements Closeable {
 		}
 	}
 
+	public void execCmdNohup(String cmd)  {
+		Preconditions.checkArgument(!Strings.isNullOrEmpty(cmd), "cmd is invalid");
+		Process process = null;
+		int exitCode = -1;
+		CmdConsOut cmdConsOut = new CmdConsOut();
+		cmdConsOut.cmd = cmd;
+		try {
+			process = Runtime.getRuntime().exec(cmd);
+			// create two stream consumers which are working simultaneously, one for consuming standard output stream, the other one for consuming error stream
+		} catch (Throwable e) {
+			LOG.warn("Fail to run command " + cmd, e);
+                        LOG.info("exitCode: " + exitCode);
+                        LOG.info("output: " + e.getMessage());
+		}
+	}
+
 	private Future<String>[] createStreamConsumerTasks(Process p) {
 		ProcessStreamConsumer outStreamConsumer = new ProcessStreamConsumer(p.getInputStream(), ProcessStreamConsumer.StreamType.OUT);
 		ProcessStreamConsumer errorStreamConsumer =

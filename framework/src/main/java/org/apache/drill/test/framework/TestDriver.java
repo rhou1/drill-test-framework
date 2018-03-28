@@ -90,6 +90,8 @@ public class TestDriver {
     Date startDate =null;
     try {
       startDate = new Date();
+      // Add shutdown hook to clean up LogParser
+      Runtime.getRuntime().addShutdownHook (new Utils.ProcessorHook());
       errorCode = new TestDriver().runTests();
     } catch (Exception e) {
       LOG.error("Exiting due to uncaught exception", e);
@@ -150,6 +152,7 @@ public class TestDriver {
     LOG.info(DrillTestDefaults.LINE_BREAK);
     LOG.info("PRE-CHECK");
     LOG.info(DrillTestDefaults.LINE_BREAK);
+
     try {
       connection = connectionPool.getOrCreateConnection();
     } catch (SQLException e) {
@@ -211,6 +214,7 @@ public class TestDriver {
     int totalPlanVerificationFailures = 0;
     int totalTimeoutFailures = 0;
     int totalCancelledFailures = 0;
+    int totalLogFailures = 0;
     int i;
 
     if (cmdParam.trackMemory) {
@@ -219,6 +223,9 @@ public class TestDriver {
 
     for (i = 1; i < cmdParam.iterations+1; i++) {
       stopwatch.reset().start();
+
+      Utils.StartLogTailer();
+
       LOG.info("\n"+DrillTestDefaults.LINE_BREAK);
       LOG.info("PREPARATION");
       LOG.info(DrillTestDefaults.LINE_BREAK);
@@ -495,6 +502,8 @@ public class TestDriver {
         generateReports(tests, i);
       }
 
+      totalLogFailures += Utils.StopLogTailer();
+
       totalPassingTests += passingTests.size();
       totalExecutionFailures += executionFailures.size();
       totalDataVerificationFailures += dataVerificationFailures.size();
@@ -575,8 +584,8 @@ public class TestDriver {
 
     executor.close();
     connectionPool.close();
-    restartDrill();
-    return totalExecutionFailures + totalDataVerificationFailures + totalPlanVerificationFailures + totalTimeoutFailures + totalRandomFailures;
+    // restartDrill();
+    return totalExecutionFailures + totalDataVerificationFailures + totalPlanVerificationFailures + totalTimeoutFailures + totalRandomFailures + totalLogFailures;
   }
 
   public void setup() throws IOException, InterruptedException, URISyntaxException {

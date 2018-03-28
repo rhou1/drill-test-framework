@@ -104,6 +104,9 @@ public class DrillTestDefaults {
   // Default line break for logging.
   static final String LINE_BREAK = "------------------------------------------------------------------------";
 
+  // Default location for Drill logs
+  public static String DRILL_LOG_DIR = "/var/log/drill";
+
   private static final Map<String, String> drillProperties;
 
   public enum Driver {
@@ -227,6 +230,9 @@ public class DrillTestDefaults {
 
     IS_SECURE_CLUSTER = drillProperties.containsKey("IS_SECURE_CLUSTER") &&
       Boolean.parseBoolean(drillProperties.get("IS_SECURE_CLUSTER"));
+
+    DRILL_LOG_DIR = drillProperties.containsKey("DRILL_LOG_DIR") ?
+      drillProperties.get("DRILL_LOG_DIR") : DRILL_LOG_DIR;
   }
 
 }
