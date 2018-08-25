@@ -363,7 +363,8 @@ public class Utils {
                 TestDriver.cmdParam.driverExt.equals(TestDriver.cmdParam.SIMBA_ODBC)) {
               testCaseModeler.submitType = "odbc";
               if (testCaseModeler.script == null) {
-                testCaseModeler.script = "Functional/odbcTest.py";
+                // testCaseModeler.script = "Functional/odbcTest.py";
+                testCaseModeler.script = "Functional/odbcTest";
               }
             }
 	    return testCaseModeler;

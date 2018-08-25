@@ -19,7 +19,9 @@ package org.apache.drill.test.framework;
 
 import java.math.BigDecimal;
 import java.sql.Types;
+import java.sql.Time;
 import java.util.List;
+import org.apache.drill.exec.vector.accessor.sql.TimePrintMillis;
 
 /**
  * Class modeling a row in a ResultSet. It also stores a values of types of each
@@ -112,7 +114,15 @@ public class ColumnList {
           values.set(i, s1);
         }
       }
-      sb.append(values.get(i) + "\t");
+      if (Simba && (values.get(i) instanceof java.sql.Time)) {
+        // java.sql.Time object does not have milliseconds accessible
+        // convert to java.util.Date to get milliseconds
+        java.util.Date d = (java.util.Date)(values.get(i));
+        TimePrintMillis tpm = new TimePrintMillis(d.getTime());
+        sb.append(tpm.toString() + "\t");
+      } else {
+        sb.append(values.get(i) + "\t");
+      }
     }
     int type = (Integer) (types.get(values.size()-1));
     if (Simba && (type == Types.VARCHAR)) {
@@ -128,7 +138,15 @@ public class ColumnList {
         values.set(values.size()-1, s1);
       }
     }
-    sb.append(values.get(values.size() - 1));
+    if (Simba && (values.get(values.size()-1) instanceof java.sql.Time)) {
+      // java.sql.Time object does not have milliseconds accessible
+      // convert to java.util.Date to get milliseconds
+      java.util.Date d = (java.util.Date)(values.get(values.size()-1));
+      TimePrintMillis tpm = new TimePrintMillis(d.getTime());
+      sb.append(tpm.toString());
+    } else {
+      sb.append(values.get(values.size() - 1));
+    }
     return sb.toString();
   }
 

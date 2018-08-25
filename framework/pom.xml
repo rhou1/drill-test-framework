@@ -93,6 +93,13 @@
       <scope>system</scope>
     </dependency>
     <dependency>
+      <groupId>org.apache.drill.java.exec</groupId>
+      <artifactId>drill-java-exec</artifactId>
+      <version>${drill.version}</version>
+      <systemPath>${env.DRILL_HOME}/jars/simba/drill-java-exec-${drill.version}-mapr.jar</systemPath>
+      <scope>system</scope>
+    </dependency>
+    <dependency>
       <groupId>com.beust</groupId>
       <artifactId>jcommander</artifactId>
       <version>1.30</version>
